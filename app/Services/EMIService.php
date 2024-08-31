@@ -13,29 +13,29 @@ class EMIService implements EMIServiceInterface
     }
 
     public function all(){
-        // Fetch loan details via the repository
+        
         return $this->loanDetailRepository->all();
     }
 
     public function processEMIData(){
-       // Get the minimum first_payment_date and maximum last_payment_date
+      
     $minDate = $this->loanDetailRepository->all()->min('first_payment_date');
     $maxDate = $this->loanDetailRepository->all()->max('last_payment_date');
 
-    // Get all months between minDate and maxDate
+  
     $start = new \DateTime($minDate);
     $end = new \DateTime($maxDate);
     $end->modify('+1 month');
 
     $period = new \DatePeriod($start, new \DateInterval('P1M'), $end);
 
-    // Generate the column names for each month
+   
     $columns = [];
     foreach ($period as $dt) {
         $columns[] = $dt->format('Y_M');
     }
 
-    // Drop `emi_details` table if exists and create it again
+   
     DB::statement('DROP TABLE IF EXISTS emi_details');
 
     $createTableSQL = "CREATE TABLE emi_details (
@@ -74,7 +74,7 @@ class EMIService implements EMIServiceInterface
         $lastPaymentMonth = $currentDate->modify('-1 month')->format('Y_M');
         $payments[$lastPaymentMonth] += round($remainingAmount, 2);
 
-        // Insert the payment data into `emi_details` table
+     
         $insertSQL = "INSERT INTO emi_details (clientid";
 
         foreach ($payments as $month => $amount) {
